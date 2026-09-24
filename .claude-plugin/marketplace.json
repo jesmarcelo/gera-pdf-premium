@@ -12,7 +12,7 @@
       "name": "gera-pdf-premium",
       "source": "./",
       "description": "Transforma qualquer texto em um ebook PDF premium, com capa, sumário clicável, capítulos e verificação de integridade do texto.",
-      "version": "1.0.0",
+      "version": "1.0.1",
       "category": "productivity"
     }
   ]

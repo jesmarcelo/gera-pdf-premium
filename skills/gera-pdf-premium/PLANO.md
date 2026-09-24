@@ -18,6 +18,7 @@ O plano é onde mora todo o julgamento editorial. O motor não inventa nada: ele
   "figuras": [ ... ],
   "refluxo": { ... },
   "tipografia": true,
+  "muletas": true,
   "css_extra": ""
 }
 ```
@@ -34,10 +35,12 @@ O tratamento do texto escolhido no questionário (`respostas.json`). O motor rec
 |---|---|---|
 | `integra` | nem `cortes` nem `correcoes` | `fonte.md` |
 | `lingua` | só `correcoes` | `fonte.md` |
-| `limpeza` | `cortes` e `correcoes` | `fonte.md` |
+| `limpeza` | `cortes` e `correcoes`; retira sozinho os vícios de linguagem inequívocos (`"muletas": false` desliga) | `fonte.md` |
 | `redacao` | nem `cortes` nem `correcoes` (a revisão já está no texto) | `texto-editado.md`, com `diff-redacao.md` gerado depois da última edição |
 
 Sem `modo`, nada é travado (compatibilidade); sempre declare-o.
+
+`muletas` (só no modo `limpeza`, ligado por padrão): retira "…, né?", "Tá?", "né" solto, hesitações e afins, depois dos cortes e das correções, registrando cada ocorrência em `correcoes.md` (critérios em SKILL.md, "Vícios de linguagem"). As correções do plano citam o texto **com** as muletas, como está no `fonte.md`; as âncoras também, porque o motor aplica a elas a mesma limpeza.
 
 ## Âncoras — a regra central
 

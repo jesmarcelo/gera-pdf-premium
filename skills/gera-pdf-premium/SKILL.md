@@ -123,7 +123,7 @@ Antes de ler o texto inteiro, conheça o início dele (primeiras ~150 linhas de 
 4. **Tratamento do texto** (`Texto`), com as quatro opções abaixo. A descrição de cada uma diz, **para este documento e este tipo de fonte**, o que vai acontecer (ex.: numa transcrição, "retira boas-vindas, avisos técnicos e despedidas"; num PDF escaneado, "corrige os erros do OCR"). Recomende: `transcricao` → Correção + limpeza; OCR → Só correção de língua; `documento`/`livro` bem escritos → Íntegra.
    - **Íntegra** — nenhuma palavra muda; só diagramação.
    - **Só correção de língua** — ortografia, acentuação, gramática, termos mal grafados; nada é removido.
-   - **Correção + limpeza de ruído** — corrige e retira o que não é conteúdo (critérios em "O que cortar").
+   - **Correção + limpeza de ruído** — corrige e retira o que não é conteúdo (critérios em "O que cortar") e os vícios de linguagem da fala ("né?", "tá?", "ahn"…).
    - **Melhoria de redação** — revisão leve de fluidez e clareza, mantendo ideias e voz; você aprova um diff antes do PDF.
 
 **Chamada 2 — a aparência e a entrega**
@@ -157,7 +157,7 @@ Se a pasta já tiver um `respostas.json` de uma execução anterior, ofereça as
 |---|---|---|
 | `integra` | nada no texto | nem `cortes` nem `correcoes` |
 | `lingua` | anota os erros de língua ("O que corrigir") | só `correcoes` |
-| `limpeza` | anota ruído ("O que cortar") e erros de língua | `cortes` + `correcoes` |
+| `limpeza` | anota ruído ("O que cortar"), erros de língua e muletas ambíguas ("Vícios de linguagem"); as inequívocas o motor retira sozinho | `cortes` + `correcoes` |
 | `redacao` | escreve `texto-editado.md` ("Melhoria de redação") e obtém a aprovação | nem `cortes` nem `correcoes` |
 
 #### O que cortar (modo `limpeza`) — depende do tipo de fonte
@@ -190,7 +190,20 @@ Declare em `correcoes` (esquema em PLANO.md), sempre com o menor trecho que reso
 - **Resíduos de limpeza ou de OCR** — marcas órfãs (", ?", "? ?"), letras trocadas ("rn" → "m"), palavras coladas. Para um padrão repetido e sempre igual, `"todas": true`.
 - **Pontuação** que muda o sentido ou quebra a frase.
 
-**Nunca corrigir:** o registro do autor (numa transcrição, "a gente", "pra", "tá" ficam); repetições didáticas; conteúdo, opinião ou doutrina, mesmo que pareçam imprecisos; lacunas da gravação ou do original (nunca complete — sinalize com nota de glossário, se ajudar); palavra duvidosa; frases que só funcionariam reescritas. Depois do build, **leia `correcoes.md` inteiro** e confira que cada "Corrigido" diz o mesmo que o "Original".
+**Nunca corrigir:** o registro do autor (numa transcrição, "a gente", "pra" e "tá" como verbo ficam; as muletas saem só no modo `limpeza`, ver "Vícios de linguagem"); repetições didáticas; conteúdo, opinião ou doutrina, mesmo que pareçam imprecisos; lacunas da gravação ou do original (nunca complete — sinalize com nota de glossário, se ajudar); palavra duvidosa; frases que só funcionariam reescritas. Depois do build, **leia `correcoes.md` inteiro** e confira que cada "Corrigido" diz o mesmo que o "Original".
+
+#### Vícios de linguagem (modo `limpeza`)
+
+No modo `limpeza`, o motor retira sozinho, e registra em `correcoes.md`, as muletas **inequívocas** da fala:
+
+- pergunta-muleta no fim de frase afirmativa: "…, né?", "…, tá?", "…, sabe?", "…, entendeu?", "…, certo?", "…, não é?", "…, beleza?" → ponto final; na pergunta de verdade, a interrogação fica ("Por que isso, né?" → "Por que isso?");
+- muleta isolada entre frases: "Né?", "Tá?", "Entendeu?", "Certo?";
+- "…, né, …" no meio da frase e "né" solto antes de pontuação ("foi isso né.");
+- hesitações: "ahn", "hum", "hã", "éé".
+
+`"muletas": false` no plano desliga isso. As âncoras podem ser copiadas do `fonte.md` com as muletas: o motor aplica a mesma limpeza a elas.
+
+O `analisar` lista também as **muletas ambíguas**, que o motor não toca: "aí" de ligação, "tipo", "assim", "então" repetido, "ou seja", "bom," / "olha," / "enfim," no início da frase, "vamos dizer assim", "na verdade", "e tal", sujeito repetido ("a casa ela tem"). Na leitura, retire por `correcoes` (motivo "vício de linguagem") só onde forem enchimento e a frase continuar dizendo o mesmo, com as palavras do autor: "o hábito tem assim três etapas" → "o hábito tem três etapas"; "o cérebro ele repete o gesto" → "o cérebro repete o gesto". Mantenha quando carregam sentido ("aí" de lugar, "assim" de modo, "então" de conclusão). Na dúvida, mantenha.
 
 #### Melhoria de redação (modo `redacao`)
 

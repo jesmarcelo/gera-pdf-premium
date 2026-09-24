@@ -126,7 +126,7 @@ No final, ela mostra um resumo e pergunta se pode seguir.
 |---|---|---|
 | **Íntegra** | Não muda nenhuma palavra, só diagrama. | Livros e textos já revisados |
 | **Só correção de língua** | Corrige ortografia, acentos e gramática. Não remove nada. | PDFs escaneados (erros de leitura) |
-| **Correção + limpeza** | Corrige e tira o que não é conteúdo, como "bom dia a todos", "estão me ouvindo?" e avisos de intervalo. | Transcrições de aulas, palestras e podcasts |
+| **Correção + limpeza** | Corrige e tira o que não é conteúdo, como "bom dia a todos", "estão me ouvindo?" e avisos de intervalo, e os vícios de linguagem da fala, como "né?", "tá?" e "ahn". | Transcrições de aulas, palestras e podcasts |
 | **Melhoria de redação** | Uma revisão leve de fluidez, mantendo suas ideias e seu jeito de escrever. **Você aprova as mudanças antes** de o PDF ser gerado. | Rascunhos e textos informais |
 
 **3. O PDF fica pronto.** Ele aparece na pasta que você escolheu, com o nome `Título - Subtítulo.pdf`. Antes de entregar, a skill confere as páginas visualmente para encontrar problemas de diagramação.

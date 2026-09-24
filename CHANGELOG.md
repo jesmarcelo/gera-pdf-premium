@@ -3,6 +3,13 @@
 Todas as mudanças importantes da skill ficam registradas aqui.
 O formato segue o [Keep a Changelog](https://keepachangelog.com/pt-BR/1.1.0/), e as versões seguem o [Versionamento Semântico](https://semver.org/lang/pt-BR/).
 
+## [1.0.1] — 2026-09-24
+
+### Adicionado
+
+- Vícios de linguagem no modo "correção + limpeza": o motor retira sozinho as muletas inequívocas da fala ("…, né?", "…, tá?", "Entendeu?", "né" solto, "ahn", "hum") e registra cada uma em `correcoes.md`. Numa pergunta de verdade, a interrogação fica; "tá" como verbo também fica. `"muletas": false` no plano desliga.
+- O `analisar` conta as muletas que saem sozinhas e lista as ambíguas ("aí", "tipo", "assim", "ou seja", sujeito repetido) para revisão caso a caso.
+
 ## [1.0.0] — 2026-09-24
 
 Primeira versão pública.
@@ -22,4 +29,5 @@ Primeira versão pública.
 - Instalação como plugin do Claude Code ou como pasta de skill.
 - Comando `/gera-pdf-premium update`, que confere a última versão no GitHub e atualiza a skill, com backup da versão anterior e preservação dos aprendizados.
 
+[1.0.1]: https://github.com/jesmarcelo/gera-pdf-premium/releases/tag/v1.0.1
 [1.0.0]: https://github.com/jesmarcelo/gera-pdf-premium/releases/tag/v1.0.0

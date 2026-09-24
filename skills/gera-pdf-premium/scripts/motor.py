@@ -666,6 +666,78 @@ def aplicar_correcoes(fonte, correcoes):
     return out, [por_n[k] for k in sorted(por_n)], []
 
 
+# ============================================================
+# VÍCIOS DE LINGUAGEM — muletas da fala retiradas no modo "limpeza"
+# ============================================================
+# Só as formas inequívocas: pergunta-muleta no fim de frase afirmativa, muleta isolada entre
+# frases, "né" solto e hesitações. "tá" verbo ("ele tá dizendo"), "a gente" e "pra" ficam.
+# Na pergunta de verdade, a muleta sai e o "?" fica ("Por que isso, né?" → "Por que isso?"). As ambíguas ("aí", "tipo",
+# "assim", "então", "ou seja") só saem por correção declarada no plano, caso a caso.
+_TAG = (r"(?:né não|né|tá bom|tá certo|tá|não é|viu|sabe|entendeu|entende|certo|correto|ok|okay|"
+        r"beleza|percebe|concorda)")
+# só marcas fortes de pergunta; "o que", "como", "quando", "onde", "quem" também abrem frase afirmativa
+# ("O que vem primeiro determina tudo, né?") e "porque" junto é causal
+_INTERROGATIVA = re.compile(r"^[\s\"“«(—–-]*(?:e |mas |então |aí )?(?:por que|por quê|pra que|para que|qual|quais|"
+                            r"quanto|quantos|quanta|quantas|será|cadê)\b", re.I)
+_HESITACAO = r"(?:ahn+|ãh+|hã+|hum+|hmm+|uhm+|éé+|ehh+)"
+MULETAS = [
+    ("pergunta-muleta no fim da frase (“…, né?” → “…”)",
+     re.compile(rf",\s*{_TAG}\s*\?(?=[\s\"”»)]|$)(\s+[^\W\d_])?", re.I), "."),
+    ("“né?” no fim da frase",
+     re.compile(r"(?<=[^\W\d_])\s+né\s*\?(?=[\s\"”»)]|$)(\s+[^\W\d_])?", re.I), "."),
+    ("muleta isolada entre frases (“Né?”, “Tá?”, “Entendeu?”)",
+     re.compile(rf"(?<=[.!?…])[ \t]+{_TAG}\s*\?(?=\s|$)|^{_TAG}\s*\?[ \t]*(?=\S|$)", re.I | re.M), ""),
+    ("muleta no meio da frase (“…, né, …”)",
+     re.compile(r",\s*(?:né|tá|sabe|entendeu|viu)\s*,", re.I), " "),
+    ("“né” solto",
+     re.compile(r"(?<=[^\W\d_]),?\s+né(?=[.;:!…]|\s*$)", re.I), ""),  # só antes de pontuação: "isso né verdade" fica
+    ("hesitação (“ahn”, “hum”, “éé”)",
+     re.compile(rf"(?:,\s*)?\b{_HESITACAO}\b[,…]*(?=\s)", re.I), ""),
+]
+
+
+def aplicar_muletas(fonte):
+    """Retira, em memória, as muletas inequívocas da fala (ver MULETAS). Títulos, código e tabelas
+    ficam de fora. Devolve (texto, registros no formato das correções)."""
+    registros = {}
+    blocos = re.split(r"(\n[ \t]*\n)", fonte)
+    em_codigo = False
+    for i in range(0, len(blocos), 2):
+        b = blocos[i]
+        cerca = b.lstrip().startswith(("```", "~~~"))
+        if em_codigo or cerca or re.match(r"\s*(#{1,6}\s|\||<)", b):
+            if cerca and b.count("```") + b.count("~~~") == 1:
+                em_codigo = not em_codigo
+            continue
+        for k, (nome, rx, troca) in enumerate(MULETAS, 1):
+            def sub(m, k=k, nome=nome, troca=troca, texto=b):
+                ini = max(texto.rfind(p, 0, m.start()) for p in ".?!…:;")
+                novo = troca
+                if troca == "." and _INTERROGATIVA.match(texto[ini + 1:m.start()]):
+                    novo = "?"  # pergunta de verdade: a muleta sai, a interrogação fica
+                if m.lastindex and m.group(m.lastindex):  # letra seguinte vira maiúscula depois do ponto
+                    seg = m.group(m.lastindex)
+                    novo += seg[:-1] + seg[-1].upper()
+                r = registros.setdefault(k, {"n": f"M{k}", "motivo": f"vício de linguagem: {nome}",
+                                             "vezes": 0, "exemplos": []})
+                r["vezes"] += 1
+                a, z = max(0, m.start() - 40), min(len(texto), m.end() + 30)
+                a = texto.find(" ", a) + 1 if a and texto.find(" ", a, m.start()) >= 0 else a  # palavras inteiras
+                z = texto.rfind(" ", m.end(), z) if texto.rfind(" ", m.end(), z) > m.end() else z
+                antes = " ".join(texto[a:z].split())
+                depois = " ".join((texto[a:m.start()] + novo + texto[m.end():z]).split())
+                r["exemplos"].append((antes, depois))
+                return novo
+            b = rx.sub(sub, b)
+        blocos[i] = b
+    regs = []
+    for k in sorted(registros):
+        r = registros[k]
+        r["de"], r["para"] = r["exemplos"][0]
+        regs.append(r)
+    return "".join(blocos), regs
+
+
 def verificar_integridade(md, fonte, doc_html):
     e1 = Extrator(so_fonte=False)
     e1.feed(md.render(fonte, {}))
@@ -999,6 +1071,30 @@ def cmd_analisar(args):
                   "no JSON com a barra dobrada)")
             for a, n in sonoras.most_common(20):
                 print(f"  {n}× {a}")
+        _, auto = aplicar_muletas(texto_corrido)
+        if auto:
+            print("\nVÍCIOS DE LINGUAGEM retirados sozinhos no modo 'limpeza' (\"muletas\": false desliga; "
+                  "listados em correcoes.md)")
+            for r in auto:
+                print(f"  {r['vezes']}× {r['motivo'].split(': ', 1)[1]}  · ex.: “{r['de']}”")
+        ambiguas = {
+            "“aí” de ligação (“E aí…”, “aí ele…”)": r"\b[Ee] aí\b|,\s*aí\b|\baí,",
+            "“tipo” / “tipo assim”": r"\btipo(?: assim)?,|,\s*tipo\b",
+            "“assim” de enchimento": r",\s*assim,|\bassim,\s*(?:tipo|né)\b|\btem assim\b",
+            "“então” repetido no início de frase": r"(?:^|[.!?]\s+)Então,?\s",
+            "“ou seja” / “quer dizer”": r"\b(?:ou seja|quer dizer)\b",
+            "“bom,” / “olha,” / “enfim,” / “veja bem,”": r"(?:^|[.!?]\s+)(?:Bom|Olha|Enfim|Veja bem|Pois é),",
+            "“vamos dizer assim” / “digamos assim” / “na verdade”": r"\b(?:vamos dizer assim|digamos assim|na verdade)\b",
+            "“e tal” / “e tudo mais” / “essas coisas”": r"\b(?:e tal|e tudo mais|essas coisas todas?)\b",
+            "sujeito repetido (“a casa ela tem”)": r"\b(?:[Oo]|[Aa]|[Oo]s|[Aa]s) [^\W\d_]+ (?:ele|ela|eles|elas) (?!mesm)[^\W\d_]+",
+        }
+        achadas = [(nome, re.findall(rx, texto_corrido)) for nome, rx in ambiguas.items()]
+        achadas = [(nome, len(v)) for nome, v in achadas if v]
+        if achadas:
+            print("\nMULETAS AMBÍGUAS (não saem sozinhas: retire por `correcoes` só onde forem enchimento, "
+                  "motivo \"vício de linguagem\")")
+            for nome, n in achadas:
+                print(f"  {n}× {nome}")
 
     corpo = sum(len(u.get("raw", "")) for u in unidades)
     n_caps = max(1, sum(1 for u in heads if u["nivel"] <= 2))
@@ -1143,6 +1239,21 @@ def construir(md_path, plano_path, saida_pdf):
     fonte, corr_reg, erros_k = aplicar_correcoes(fonte, plano.get("correcoes", []))
     if erros_k:
         falhar("problemas nas correções do plano:\n  " + "\n  ".join(erros_k))
+    if plano.get("muletas", modo == "limpeza"):
+        if modo != "limpeza":
+            falhar("\"muletas\" só vale no modo 'limpeza' — retire-o ou mude o modo")
+        fonte, mul_reg = aplicar_muletas(fonte)  # depois das correções: elas citam o texto com as muletas
+        corr_reg += mul_reg
+        # as âncoras foram copiadas do fonte.md, com as muletas: passam pela mesma limpeza
+        def sem_muletas(a):
+            return aplicar_muletas(a)[0] if isinstance(a, str) else a
+        for c in plano.get("estrutura", {}).get("capitulos", []) or []:
+            c["ancora"] = sem_muletas(c.get("ancora"))
+        for cx in plano.get("caixas", []):
+            cx["inicio"], cx["fim"] = sem_muletas(cx.get("inicio")), sem_muletas(cx.get("fim"))
+        plano["destaques"] = [sem_muletas(d) for d in plano.get("destaques", [])]
+        for g in plano.get("glossario", []) + plano.get("figuras", []):
+            g["antes"] = sem_muletas(g.get("antes"))
     base_plano = plano_path.parent
     meta = plano.get("meta", {})
     tema = resolver_tema(plano)
@@ -1658,8 +1769,9 @@ def cmd_build(args):
               f"{len(r['correcoes'])} correções declaradas, {n_corr} aplicações no texto.", ""]
         for c in r["correcoes"]:
             km += [f"## {c['n']}. {c['motivo'] or 'sem motivo declarado'}"
-                   + (f" · {c['vezes']}×" if c["vezes"] > 1 else ""), "",
-                   f"- **Original:** {c['de']}", f"- **Corrigido:** {c['para'] or '(removido)'}", ""]
+                   + (f" · {c['vezes']}×" if c["vezes"] > 1 else ""), ""]
+            for de, para in c.get("exemplos") or [(c["de"], c["para"])]:
+                km += [f"- **Original:** {de}", f"- **Corrigido:** {para or '(removido)'}", ""]
         arq_corr.write_text("\n".join(km), encoding="utf-8")
         print(f"[correções] {len(r['correcoes'])} declaradas · {n_corr} aplicações · {arq_corr}")
     elif arq_corr.exists():

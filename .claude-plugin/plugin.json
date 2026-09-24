@@ -1,6 +1,6 @@
 {
   "name": "gera-pdf-premium",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Transforma qualquer texto (.md, .txt, .docx, .srt, .vtt, PDF com texto ou escaneado) em um ebook PDF premium, com capa, sumário clicável, capítulos e verificação de integridade do texto.",
   "author": {
     "name": "Marcelo Villasanin",
