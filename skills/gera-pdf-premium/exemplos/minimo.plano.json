@@ -1,0 +1,18 @@
+{
+  "modo": "integra",
+  "meta": {
+    "titulo": "Título do livro",
+    "subtitulo": "Subtítulo curto",
+    "chapeu": "Coleção · Volume 1",
+    "descricao_capa": "Uma frase que diz ao leitor o que ele vai encontrar.",
+    "autores": "Nome do autor",
+    "creditos": ["Autor|Nome do autor"],
+    "descricao": "Descrição para os metadados do PDF.",
+    "palavras_chave": "tema, assunto, área"
+  },
+  "tema": {
+    "preset": "grafite-cobre",
+    "selo": "losango",
+    "formato": "152x229"
+  }
+}

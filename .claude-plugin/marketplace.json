@@ -1,0 +1,19 @@
+{
+  "name": "jesmarcelo",
+  "owner": {
+    "name": "Marcelo Villasanin",
+    "url": "https://github.com/jesmarcelo"
+  },
+  "metadata": {
+    "description": "Skills de Marcelo Villasanin para o Claude Code."
+  },
+  "plugins": [
+    {
+      "name": "gera-pdf-premium",
+      "source": "./",
+      "description": "Transforma qualquer texto em um ebook PDF premium, com capa, sumário clicável, capítulos e verificação de integridade do texto.",
+      "version": "1.0.0",
+      "category": "productivity"
+    }
+  ]
+}

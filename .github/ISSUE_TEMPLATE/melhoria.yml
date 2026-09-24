@@ -1,0 +1,20 @@
+name: Sugerir uma melhoria
+description: Uma ideia para deixar a skill melhor.
+labels: ["melhoria"]
+body:
+  - type: textarea
+    id: problema
+    attributes:
+      label: Que problema a ideia resolve?
+      description: Ex.: "Meus PDFs têm muitas tabelas largas e elas ficam apertadas."
+    validations:
+      required: true
+  - type: textarea
+    id: ideia
+    attributes:
+      label: Como você imagina a solução?
+  - type: textarea
+    id: extra
+    attributes:
+      label: Algo mais?
+      description: Exemplos, prints ou referências de outros livros.

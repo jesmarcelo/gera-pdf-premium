@@ -1,0 +1,57 @@
+{
+  "modo": "limpeza",
+  "meta": {
+    "titulo": "Pequenos Hábitos",
+    "titulo_capa": "Pequenos\nHábitos",
+    "subtitulo": "Guia prático",
+    "chapeu": "Coleção Viver Melhor · Volume 1",
+    "descricao_capa": "Como os hábitos se formam e como mudar os seus, um passo pequeno de cada vez.",
+    "rodape_capa": "Edição de exemplo",
+    "creditos": ["Texto|Autor de exemplo"],
+    "autores": "Autor de exemplo",
+    "descricao": "Guia prático sobre como os hábitos se formam e como mudá-los.",
+    "palavras_chave": "hábitos, comportamento, produtividade",
+    "epigrafe": { "texto": "Quem calça o tênis todos os dias acaba, cedo ou tarde, saindo para caminhar.", "autor": "Pequenos Hábitos" },
+    "fim": { "titulo": "Um dia de cada vez", "subtitulo": "Pequenos Hábitos" }
+  },
+  "tema": { "preset": "grafite-cobre", "selo": "losango", "formato": "152x229" },
+  "cortes": [
+    { "trecho": "TODO: revisar a introdução antes de publicar.", "motivo": "marcas de revisão" }
+  ],
+  "correcoes": [
+    { "de": "efeito com posto", "para": "efeito composto", "motivo": "ortografia" }
+  ],
+  "estrutura": {
+    "partes": [
+      { "id": "I", "titulo": "Entender", "resumo": "O que acontece no cérebro quando repetimos um gesto." },
+      { "id": "II", "titulo": "Mudar", "resumo": "Começar pequeno, desenhar o ambiente e manter o ritmo." }
+    ],
+    "capitulos": [
+      { "parte": 0, "titulo": "Por que hábitos importam", "ancora": null },
+      { "parte": 0, "titulo_fonte": "Como um hábito se forma" },
+      { "parte": 1, "titulo_fonte": "Começar pequeno" },
+      { "parte": 1, "titulo_fonte": "Desenhar o ambiente" },
+      { "parte": 1, "titulo_fonte": "Manter o ritmo" }
+    ]
+  },
+  "caixas": [
+    { "inicio": "Repita comigo: eu escolho começar pequeno.", "fim": "Os ganhos pequenos têm um efeito composto.",
+      "tipo": "ritual", "rotulo": "Compromisso" },
+    { "inicio": "Quem quer beber mais água deixa uma garrafa cheia sobre a mesa.",
+      "fim": "O princípio vale ao contrário para os hábitos",
+      "tipo": "exemplo", "rotulo": "Exemplos do dia a dia" }
+  ],
+  "destaques": [
+    "O problema é que o cérebro automatiza com a mesma eficiência",
+    "Por fim, vale lembrar que hábitos não são metas."
+  ],
+  "glossario": [
+    { "antes": "Agora vamos falar de neuroplasticidade na prática.", "termo": "Neuroplasticidade",
+      "texto": "Capacidade do sistema nervoso de *reorganizar* suas conexões em resposta à experiência e à repetição." }
+  ],
+  "figuras": [
+    { "antes": "Olha só como as quatro etapas se encadeiam.", "svg": "../figuras/ciclo.svg",
+      "legenda": "O ciclo do hábito: a deixa desperta o desejo, que leva à resposta, cuja recompensa reforça a deixa.",
+      "largura_mm": 88, "altura_max_mm": 95 }
+  ]
+}

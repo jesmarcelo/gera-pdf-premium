@@ -1,0 +1,712 @@
+/* ============================================================
+   gera-pdf-premium · Sistema de design editorial
+   Renderização: WeasyPrint · fontes OFL embutidas (assets/fontes)
+   Marcadores {{chave}} e __LARGURA__/__ALTURA__ são substituídos
+   pelo motor a partir do tema do plano. var(--x) = tokens de tema.
+   ============================================================ */
+
+/* ---------- 1. TOKENS (padrão: noite-ouro) ---------- */
+:root {
+  --tinta:        #1B1E28;
+  --tinta-suave:  #4A5163;
+  --tinta-fraca:  #8A90A2;
+  --escuro:       #101627;
+  --escuro2:      #1B2440;
+  --acento:       #B08A3E;
+  --acento-claro: #D9BE7E;
+  --acento-lavado:#F1E7D2;
+  --papel:        #FCFAF6;
+  --claro:        #F3E9D2;
+  --texto-caixa:  #4A3A18;
+  --filete:       #DED7C8;
+  --zebra:        #F4F2EC;
+  --alerta:       #B4532A;
+
+  --serif:   "GP Source Serif 4", "Iowan Old Style", "Noto Serif", Georgia, serif;
+  --display: "GP Cormorant Garamond", "Didot", "Noto Serif Display", Garamond, serif;
+  --sans:    "GP Inter", "Avenir Next", "Noto Sans", Helvetica, sans-serif;
+  --mono:    "GP JetBrains Mono", "Menlo", "DejaVu Sans Mono", monospace;
+}
+
+/* ---------- 2. GRADE DE PÁGINA ---------- */
+@page {
+  size: __LARGURA__ __ALTURA__;
+  margin: 20mm 17mm 20mm 17mm;
+  background: {{papel}};
+}
+@page corpo:left {
+  margin: 22mm 16mm 20mm 18mm;
+  @top-left {
+    content: string(parte);
+    font: 400 6.6pt/1 {{sans}};
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: {{tinta_fraca}};
+    margin-top: 11mm;
+  }
+  @bottom-left {
+    content: counter(page);
+    font: 400 8.5pt/1 {{display}};
+    color: {{acento}};
+    margin-bottom: 10mm;
+  }
+}
+@page corpo:right {
+  margin: 22mm 18mm 20mm 16mm;
+  @top-right {
+    content: string(capitulo);
+    font: 400 6.6pt/1 {{sans}};
+    letter-spacing: .18em;
+    text-transform: uppercase;
+    color: {{tinta_fraca}};
+    margin-top: 11mm;
+  }
+  @bottom-right {
+    content: counter(page);
+    font: 400 8.5pt/1 {{display}};
+    color: {{acento}};
+    margin-bottom: 10mm;
+  }
+}
+/* páginas em branco criadas por quebra "right": sem cabeçalho nem fólio */
+@page :blank {
+  @top-left { content: none; }  @top-right { content: none; }
+  @bottom-left { content: none; } @bottom-right { content: none; }
+}
+@page capa   { margin: 0; background: {{escuro}}; }
+@page escura { margin: 0; background: {{escuro}}; }
+@page limpa  { margin: 22mm 17mm 20mm 17mm; }
+
+/* ---------- 3. BASE ---------- */
+html { font-size: 10.6pt; }
+body {
+  font-family: var(--serif);
+  color: var(--tinta);
+  line-height: 1.62;
+  text-align: justify;
+  hyphens: auto;
+  hyphenate-character: "-";  /* U+2010 não existe nos recortes das fontes embutidas */
+  orphans: 2;
+  widows: 2;
+  margin: 0;
+}
+p { margin: 0; }
+a { color: var(--acento); text-decoration: none; }
+h1, h2, h3, h4, h5, h6 { bookmark-level: none; }
+.bm1 { bookmark-level: 1; }
+.bm2 { bookmark-level: 2; }
+.bm3 { bookmark-level: 3; }
+.bm4 { bookmark-level: 4; }
+.bm5 { bookmark-level: 5; }
+
+.marca-livro { string-set: parte attr(data-parte); height: 0; margin: 0; }
+
+/* =====================================================
+   4. CAPA
+   ===================================================== */
+.capa {
+  page: capa;
+  height: __ALTURA__;
+  width: __LARGURA__;
+  position: relative;
+  page-break-after: always;
+  color: var(--acento-claro);
+}
+.capa .arte {
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+  background-size: cover;
+  background-position: center;
+}
+.capa .veu {
+  position: absolute; top: 0; right: 0; bottom: 0; left: 0;
+  background: var(--escuro);
+  opacity: .58;
+}
+.moldura, .moldura2 {
+  position: absolute;
+  border: .4pt solid var(--acento-claro);
+}
+.capa .moldura  { top: 12mm; right: 12mm; bottom: 12mm; left: 12mm; opacity: .45; }
+.capa .moldura2 { top: 14.6mm; right: 14.6mm; bottom: 14.6mm; left: 14.6mm; opacity: .2; border-width: .9pt; }
+.capa .selo {
+  position: absolute;
+  top: 13%; left: 0; right: 0;
+  text-align: center;
+}
+.capa .miolo {
+  position: absolute;
+  top: 31%; left: 16mm; right: 16mm;
+  text-align: center;
+}
+.capa .chapeu {
+  font: 400 7.4pt/1.5 var(--sans);
+  letter-spacing: .42em;
+  text-transform: uppercase;
+  color: var(--acento-claro);
+  opacity: .8;
+  margin-bottom: 9mm;
+}
+.capa .titulo {
+  font-family: var(--display);
+  line-height: .98;
+  letter-spacing: .012em;
+  color: var(--claro);
+  hyphens: none;
+}
+.capa .titulo.t-g { font-size: 40pt; }
+.capa .titulo.t-m { font-size: 32pt; }
+.capa .titulo.t-p { font-size: 25pt; line-height: 1.06; }
+.capa .sub {
+  margin-top: 7mm;
+  font: 300 13pt/1.3 var(--sans);
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--acento-claro);
+  hyphens: none;
+}
+.capa .filete-c {
+  width: 34mm; height: .6pt;
+  margin: 10mm auto 8mm;
+  background: var(--acento-claro);
+  opacity: .8;
+}
+.capa .descricao {
+  font: 400 10.5pt/1.65 var(--serif);
+  font-style: italic;
+  color: var(--claro);
+  opacity: .82;
+  padding: 0 6mm;
+  hyphens: none;
+}
+.capa .rodape {
+  position: absolute;
+  bottom: 11.5%; left: 0; right: 0;
+  text-align: center;
+  font: 400 7.2pt/1.9 var(--sans);
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--acento-claro);
+  opacity: .65;
+}
+
+/* =====================================================
+   5. MEIA-FOLHA, ROSTO, COLOFÃO, EPÍGRAFE
+   ===================================================== */
+.meia-folha {
+  page: limpa;
+  page-break-after: always;
+  padding-top: 34%;
+  text-align: center;
+}
+.meia-folha .nome {
+  font: 400 19pt/1.15 var(--display);
+  color: var(--escuro);
+  letter-spacing: .01em;
+  hyphens: none;
+}
+.meia-folha .orn { margin-top: 9mm; }
+
+.rosto {
+  page: limpa;
+  page-break-after: always;
+  padding-top: 20%;
+  text-align: center;
+}
+.rosto .chapeu {
+  font: 400 7.2pt/1.5 var(--sans);
+  letter-spacing: .40em;
+  text-transform: uppercase;
+  color: var(--acento);
+  margin-bottom: 12mm;
+}
+.rosto h1 {
+  font: 400 31pt/1.06 var(--display);
+  color: var(--escuro);
+  margin: 0;
+  hyphens: none;
+}
+.rosto h1 .sub {
+  display: block;
+  margin-top: 6mm;
+  font: 300 10pt/1.4 var(--sans);
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  color: var(--tinta-suave);
+}
+.rosto .filete {
+  width: 30mm; height: .5pt;
+  background: var(--acento);
+  margin: 14mm auto;
+}
+.rosto .creditos {
+  font: 400 10pt/1.85 var(--serif);
+  color: var(--tinta-suave);
+  font-style: italic;
+}
+.rosto .creditos strong {
+  font-style: normal;
+  font-weight: 600;
+  color: var(--tinta);
+}
+
+.colofao {
+  page: limpa;
+  page-break-after: always;
+  padding-top: 24%;
+  font: 400 7.9pt/1.72 var(--sans);
+  color: var(--tinta-suave);
+  text-align: left;
+  hyphens: none;
+}
+.colofao .bloco { margin-bottom: 6mm; }
+.colofao .rot {
+  display: block;
+  font-size: 6.4pt;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--acento);
+  margin-bottom: 1.4mm;
+}
+.colofao .nota {
+  margin-top: 9mm;
+  padding-top: 5mm;
+  border-top: .4pt solid var(--filete);
+  font-size: 7.2pt;
+  line-height: 1.7;
+  color: var(--tinta-fraca);
+}
+
+.epigrafe {
+  page: limpa;
+  page-break-after: always;
+  padding: 34% 14mm 0;
+  text-align: center;
+}
+.epigrafe p {
+  font: 400 12.4pt/1.74 var(--display);
+  font-style: italic;
+  color: var(--escuro);
+  text-align: center;
+  hyphens: none;
+}
+.epigrafe .autor {
+  margin-top: 8mm;
+  font: 400 7.4pt/1 var(--sans);
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--acento);
+}
+
+/* =====================================================
+   6. SUMÁRIO
+   ===================================================== */
+.sumario { page: limpa; page-break-after: always; }
+.sumario .cab {
+  font: 400 8pt/1 var(--sans);
+  letter-spacing: .40em;
+  text-transform: uppercase;
+  color: var(--acento);
+  text-align: center;
+  margin: 0 0 3mm;
+  bookmark-level: 1;
+  bookmark-label: "Sumário";
+}
+.sumario .orn-topo { text-align: center; margin-bottom: 11mm; }
+.toc-parte {
+  margin: 8mm 0 3.5mm;
+  font: 400 7pt/1.3 var(--sans);
+  letter-spacing: .30em;
+  text-transform: uppercase;
+  color: var(--escuro);
+  border-bottom: .5pt solid var(--acento);
+  padding-bottom: 2mm;
+  page-break-after: avoid;
+}
+.toc-parte.primeira { margin-top: 0; }
+a.toc-item {
+  display: block;
+  color: var(--tinta);
+  font: 400 9.4pt/1.25 var(--serif);
+  margin: 0 0 2.6mm;
+  text-align: left;
+  hyphens: none;
+}
+a.toc-item .num {
+  display: inline-block;
+  width: 7mm;
+  font-family: var(--display);
+  font-size: 8pt;
+  color: var(--acento);
+}
+a.toc-item::after {
+  content: leader('. ') target-counter(attr(href), page);
+  font-family: var(--display);
+  font-size: 8.4pt;
+  color: var(--tinta-fraca);
+}
+
+/* =====================================================
+   7. ABERTURA DE PARTE
+   ===================================================== */
+.parte {
+  page: escura;
+  height: __ALTURA__;
+  width: __LARGURA__;
+  position: relative;
+  page-break-before: right;
+  page-break-after: always;
+  string-set: parte attr(data-parte);
+  color: var(--acento-claro);
+}
+.parte .moldura, .fim .moldura { top: 14mm; right: 14mm; bottom: 14mm; left: 14mm; opacity: .32; }
+.parte .miolo {
+  position: absolute;
+  top: 29.5%; left: 18mm; right: 18mm;
+  text-align: center;
+}
+.parte .num {
+  font: 400 7pt/1 var(--sans);
+  letter-spacing: .44em;
+  text-transform: uppercase;
+  color: var(--acento-claro);
+  opacity: .75;
+  margin-bottom: 9mm;
+}
+.parte h1 {
+  font: 400 30pt/1.08 var(--display);
+  color: var(--claro);
+  margin: 0;
+  hyphens: none;
+  bookmark-level: 1;
+  bookmark-label: attr(data-titulo);
+}
+.parte .orn { margin: 14mm 0 10mm; }
+.parte .resumo {
+  font: 400 9pt/1.7 var(--serif);
+  font-style: italic;
+  color: var(--claro);
+  opacity: .74;
+  padding: 0 8mm;
+  hyphens: none;
+}
+
+/* =====================================================
+   8. CAPÍTULOS
+   ===================================================== */
+.cap {
+  page: corpo;
+  page-break-before: always;
+  string-set: capitulo attr(data-cap);
+}
+.cap.apendice { page-break-before: right; }
+.cap-abre {
+  page-break-inside: avoid;
+  page-break-after: avoid;
+  margin-bottom: 10mm;
+  padding-top: 26mm;
+}
+.cap-abre .num {
+  font: 400 7pt/1 var(--sans);
+  letter-spacing: .34em;
+  text-transform: uppercase;
+  color: var(--acento);
+  margin-bottom: 4mm;
+  text-align: left;
+}
+.cap-abre h2 {
+  font: 400 20pt/1.14 var(--display);
+  color: var(--escuro);
+  margin: 0 0 5mm;
+  text-align: left;
+  hyphens: none;
+}
+.cap-abre .filete { width: 22mm; height: .5pt; background: var(--acento); }
+
+.cap p.t { text-indent: 5.2mm; }
+.cap p.t.primeira { text-indent: 0; }
+.cap span.capitular {
+  font-family: var(--display);
+  font-size: 3.15em;
+  line-height: .80;
+  float: left;
+  margin: 1.1mm 1.9mm 0 0;
+  color: var(--acento);
+}
+
+/* intertítulos vindos do Markdown */
+.cap h3 {
+  font: 400 12.5pt/1.3 var(--display);
+  color: var(--escuro);
+  margin: 8mm 0 3.5mm;
+  text-align: left;
+  hyphens: none;
+  page-break-after: avoid;
+}
+.cap h3::before {
+  content: "";
+  display: block;
+  width: 12mm; height: .5pt;
+  background: var(--acento);
+  margin-bottom: 3mm;
+}
+.cap h4 {
+  font: 500 7.4pt/1.35 var(--sans);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--acento);
+  margin: 6mm 0 3mm;
+  text-align: left;
+  hyphens: none;
+  page-break-after: avoid;
+}
+
+/* =====================================================
+   9. COMPONENTES EDITORIAIS
+   ===================================================== */
+.caixa {
+  margin: 7mm 3mm;
+  padding: 5.5mm 6.5mm;
+  page-break-inside: avoid;
+}
+.caixa .rot, .alerta .rot, .termo .rot {
+  display: block;
+  font: 400 6.2pt/1.3 var(--sans);
+  letter-spacing: .28em;
+  text-transform: uppercase;
+  margin-bottom: 3.2mm;
+  text-align: left;
+}
+.caixa p, .caixa p.t { text-indent: 0; text-align: left; }
+.caixa p + p { margin-top: 2.4mm; }
+
+.caixa-ritual { background: var(--acento-lavado); border-left: 1.6pt solid var(--acento); }
+.caixa-ritual .rot { color: var(--acento); }
+.caixa-ritual p { font-size: 9.5pt; line-height: 1.62; font-style: italic; color: var(--texto-caixa); }
+
+.caixa-dialogo { background: var(--zebra); border: .4pt solid var(--filete); }
+.caixa-dialogo .rot { color: var(--tinta-fraca); }
+.caixa-dialogo p { font-size: 9.4pt; line-height: 1.58; color: var(--tinta-suave); }
+
+.caixa-nota { border-top: .5pt solid var(--acento); border-bottom: .5pt solid var(--acento); margin-left: 0; margin-right: 0; }
+.caixa-nota .rot { color: var(--acento); }
+.caixa-nota p { font-size: 9.4pt; color: var(--tinta-suave); }
+
+.caixa-alerta { background: #FBF1EC; border-left: 1.6pt solid var(--alerta); }
+.caixa-alerta .rot { color: var(--alerta); }
+.caixa-alerta p { font-size: 9.4pt; color: var(--tinta); }
+
+.caixa-exemplo { border: .5pt solid var(--acento); background: var(--papel); }
+.caixa-exemplo .rot { color: var(--acento); }
+.caixa-exemplo p { font-size: 9.4pt; }
+/* Diálogos e exemplos costumam ser longos: se não puderem quebrar, pulam inteiros
+   para a página seguinte e deixam a abertura de capítulo vazia (Aula 04, p. 24). */
+.caixa-dialogo, .caixa-exemplo { page-break-inside: auto; break-inside: auto; }
+
+.caixa-termos { background: var(--acento-lavado); }
+.caixa-termos .rot { color: var(--acento); }
+.caixa-termos p { font-size: 9pt; line-height: 1.8; color: var(--texto-caixa); hyphens: none; }
+
+.destaque {
+  margin: 7mm 0;
+  padding: 5.5mm 0 5.5mm 6mm;
+  border-left: 2.4pt solid var(--escuro2);
+  page-break-inside: avoid;
+}
+.destaque p {
+  font: 400 11pt/1.58 var(--serif);
+  color: var(--escuro);
+  text-indent: 0;
+  text-align: left;
+  hyphens: none;
+}
+
+.termo {
+  margin: 6mm 0;
+  padding: 4.5mm 5.5mm;
+  border-top: .5pt solid var(--acento);
+  border-bottom: .5pt solid var(--acento);
+  page-break-inside: avoid;
+}
+.termo .rot { color: var(--acento); margin-bottom: 2.6mm; }
+.termo p { font-size: 9.2pt; line-height: 1.6; text-indent: 0; text-align: left; color: var(--tinta-suave); }
+
+.sep { text-align: center; margin: 7mm 0; }
+
+figure { margin: 8mm 0 9mm; page-break-inside: avoid; text-align: center; }
+figure svg, figure img { display: block; margin: 0 auto; }
+figure.fig-md img { max-width: 100%; max-height: 118mm; }
+figcaption {
+  margin-top: 4mm;
+  font: 400 7.2pt/1.55 var(--sans);
+  color: var(--tinta-fraca);
+  text-align: center;
+  hyphens: none;
+}
+figcaption b {
+  display: block;
+  color: var(--acento);
+  font-weight: 500;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+  font-size: 6.4pt;
+  margin-bottom: 1.4mm;
+}
+
+/* =====================================================
+   10. ELEMENTOS MARKDOWN NATIVOS
+   ===================================================== */
+.md-lista { margin: 3mm 0 4mm; }
+.md-lista ul, .md-lista ol { margin: 0; padding: 0; }
+.md-lista ul { list-style: none; }
+.md-lista ul > li { position: relative; padding-left: 6mm; }
+.md-lista ul > li::before {
+  content: "◆";
+  position: absolute;
+  left: 0; top: .2mm;
+  font-size: 5.4pt;
+  color: var(--acento);
+}
+.md-lista ul > li.task-list-item::before { content: none; }
+.md-lista ul > li.task-list-item { padding-left: 0; }
+.md-lista span.tarefa {
+  display: inline-block;
+  width: 2.6mm; height: 2.6mm;
+  margin: 0 2.2mm 0 0;
+  vertical-align: -.35mm;
+  border: .6pt solid var(--acento);
+  border-radius: .5mm;
+  background: var(--papel);
+}
+.md-lista span.tarefa.feita { background: var(--acento); }
+/* nunca deixar o último item de uma lista sozinho na página seguinte */
+.md-lista li:last-child { page-break-before: avoid; }
+.md-lista ol { padding-left: 7mm; }
+.md-lista ol > li::marker { color: var(--acento); font-family: var(--display); }
+.md-lista li { margin-bottom: 2.2mm; text-align: left; hyphens: none; line-height: 1.55; }
+.md-lista li p { text-indent: 0; }
+.md-lista li ul, .md-lista li ol { margin-top: 2mm; }
+
+.md-tabela { margin: 6mm 0; }
+.md-tabela table {
+  width: 100%;
+  border-collapse: collapse;
+  font: 400 8.4pt/1.45 var(--sans);
+  text-align: left;
+  hyphens: none;
+}
+.md-tabela thead { display: table-header-group; }
+.md-tabela th {
+  font-weight: 600;
+  font-size: 6.8pt;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--escuro);
+  border-bottom: 1pt solid var(--acento);
+  padding: 2mm 2.4mm;
+  text-align: left;
+  vertical-align: bottom;
+}
+.md-tabela td {
+  padding: 2mm 2.4mm;
+  border-bottom: .4pt solid var(--filete);
+  vertical-align: top;
+  color: var(--tinta);
+}
+.md-tabela tr { page-break-inside: avoid; }
+.md-tabela tbody tr:nth-child(even) td { background: var(--zebra); }
+
+.md-codigo { margin: 5mm 0; page-break-inside: avoid; }
+.md-codigo[data-lang]::before {
+  content: attr(data-lang);
+  display: block;
+  font: 500 6pt/1 var(--sans);
+  letter-spacing: .22em;
+  text-transform: uppercase;
+  color: var(--acento);
+  margin-bottom: 1.6mm;
+}
+.md-codigo pre {
+  margin: 0;
+  background: var(--escuro);
+  color: #E9E6DF;
+  font: 400 7.8pt/1.55 var(--mono);
+  padding: 4.5mm 5mm;
+  border-radius: 1.4mm;
+  white-space: pre-wrap;
+  text-align: left;
+  hyphens: none;
+}
+code {
+  font-family: var(--mono);
+  font-size: .86em;
+  background: var(--acento-lavado);
+  padding: .2mm 1mm;
+  border-radius: .8mm;
+  hyphens: none;
+}
+pre code { background: none; padding: 0; font-size: inherit; color: inherit; }
+
+.md-citacao blockquote {
+  margin: 6mm 0;
+  padding: .5mm 0 .5mm 7mm;
+  border-left: 1.2pt solid var(--acento);
+  font-style: italic;
+  color: var(--tinta-suave);
+}
+.md-citacao blockquote p { text-indent: 0; }
+.md-citacao blockquote p + p { margin-top: 2.4mm; }
+
+.alerta {
+  margin: 6mm 0;
+  padding: 4.5mm 5.5mm;
+  border-left: 2pt solid var(--acento);
+  background: var(--acento-lavado);
+  page-break-inside: avoid;
+}
+.alerta .rot { color: var(--acento); }
+.alerta blockquote { margin: 0; padding: 0; border: 0; }
+.alerta p { text-indent: 0; text-align: left; font-size: 9.4pt; }
+.alerta p + p { margin-top: 2.2mm; }
+.alerta-WARNING, .alerta-CAUTION { border-left-color: var(--alerta); background: #FBF1EC; }
+.alerta-WARNING .rot, .alerta-CAUTION .rot { color: var(--alerta); }
+.alerta-IMPORTANT { border-left-color: var(--escuro); background: var(--zebra); }
+.alerta-IMPORTANT .rot { color: var(--escuro); }
+
+.md-html { margin: 4mm 0; }
+.md-notas { margin-top: 10mm; font-size: 8.2pt; line-height: 1.55; color: var(--tinta-suave); }
+.md-notas hr.footnotes-sep { display: none; }
+.md-notas section.footnotes { border-top: .4pt solid var(--filete); padding-top: 4mm; }
+.md-notas ol { padding-left: 6mm; }
+.md-notas li { margin-bottom: 1.6mm; text-align: left; }
+sup.footnote-ref { font-size: .7em; line-height: 0; }
+
+/* =====================================================
+   11. PÁGINA FINAL
+   ===================================================== */
+.fim {
+  page: escura;
+  height: __ALTURA__;
+  width: __LARGURA__;
+  position: relative;
+  page-break-before: always;
+  color: var(--acento-claro);
+}
+.fim .miolo {
+  position: absolute;
+  top: 38.5%; left: 20mm; right: 20mm;
+  text-align: center;
+}
+.fim .titulo {
+  font: 400 24pt/1.2 var(--display);
+  color: var(--claro);
+  margin-bottom: 6mm;
+  hyphens: none;
+}
+.fim .sub {
+  font: 400 8pt/1.8 var(--sans);
+  letter-spacing: .26em;
+  text-transform: uppercase;
+  color: var(--acento-claro);
+  opacity: .75;
+}
+.fim .orn { margin-top: 12mm; }

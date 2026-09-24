@@ -1,0 +1,22 @@
+# Sistema
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Editores
+.vscode/
+.idea/
+*.swp
+
+# Resultados de testes da skill (o exemplo versionado fica de fora desta regra)
+.gera-pdf-premium/
+teste-neutro/
+*.pdf
+*-ebook/
+!skills/gera-pdf-premium/exemplos/neutro/Pequenos Hábitos-ebook/

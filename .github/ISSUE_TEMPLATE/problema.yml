@@ -1,0 +1,68 @@
+name: Relatar um problema
+description: Algo não funcionou como esperado.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Obrigado por avisar! Quanto mais detalhes, mais rápido dá para resolver.
+        **Não anexe documentos confidenciais.**
+  - type: dropdown
+    id: sistema
+    attributes:
+      label: Sistema operacional
+      options:
+        - macOS
+        - Windows
+        - Linux
+    validations:
+      required: true
+  - type: dropdown
+    id: instalacao
+    attributes:
+      label: Como você instalou
+      options:
+        - Como plugin (/plugin install)
+        - Copiando a pasta da skill
+    validations:
+      required: true
+  - type: dropdown
+    id: entrada
+    attributes:
+      label: Tipo de arquivo de entrada
+      options:
+        - .md
+        - .txt
+        - .docx
+        - PDF com texto
+        - PDF escaneado
+        - Outro
+  - type: dropdown
+    id: modo
+    attributes:
+      label: Modo de tratamento do texto
+      options:
+        - Íntegra
+        - Só correção de língua
+        - Correção + limpeza de ruído
+        - Melhoria de redação
+        - Não cheguei a escolher
+  - type: textarea
+    id: descricao
+    attributes:
+      label: O que aconteceu?
+      description: Conte o que você esperava e o que aconteceu no lugar.
+    validations:
+      required: true
+  - type: textarea
+    id: verificar
+    attributes:
+      label: Saída do comando de verificação
+      description: "Rode `scripts/gerar verificar` (Windows: `scripts\\gerar.cmd verificar`) dentro da pasta da skill e cole o resultado."
+      render: text
+  - type: textarea
+    id: erro
+    attributes:
+      label: Mensagem de erro
+      description: Cole a mensagem completa, se houver.
+      render: text

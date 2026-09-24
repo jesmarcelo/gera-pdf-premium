@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 400">
+  <defs>
+    <marker id="seta" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto">
+      <path d="M0,0 L10,5 L0,10 z" fill="#B4693E"/>
+    </marker>
+  </defs>
+  <rect x="0" y="0" width="400" height="400" fill="#F6E6DA" rx="10"/>
+  <circle cx="200" cy="200" r="118" fill="none" stroke="#E3A57A" stroke-width="1" stroke-dasharray="3 5"/>
+  <!-- arcos entre as etapas, no sentido horário -->
+  <path d="M 252.6 94.4 A 118 118 0 0 1 305.6 147.4" fill="none" stroke="#B4693E" stroke-width="2" marker-end="url(#seta)"/>
+  <path d="M 305.6 252.6 A 118 118 0 0 1 252.6 305.6" fill="none" stroke="#B4693E" stroke-width="2" marker-end="url(#seta)"/>
+  <path d="M 147.4 305.6 A 118 118 0 0 1 94.4 252.6" fill="none" stroke="#B4693E" stroke-width="2" marker-end="url(#seta)"/>
+  <path d="M 94.4 147.4 A 118 118 0 0 1 147.4 94.4" fill="none" stroke="#B4693E" stroke-width="2" marker-end="url(#seta)"/>
+  <g font-family="GP Cormorant Garamond, serif" font-size="25" fill="#1C1F24" text-anchor="middle">
+    <circle cx="200" cy="82" r="44" fill="#FBFAF8" stroke="#B4693E" stroke-width="1.5"/>
+    <text x="200" y="90">Deixa</text>
+    <circle cx="318" cy="200" r="44" fill="#FBFAF8" stroke="#B4693E" stroke-width="1.5"/>
+    <text x="318" y="208">Desejo</text>
+    <circle cx="200" cy="318" r="44" fill="#FBFAF8" stroke="#B4693E" stroke-width="1.5"/>
+    <text x="200" y="325" font-size="19">Resposta</text>
+    <circle cx="82" cy="200" r="44" fill="#FBFAF8" stroke="#B4693E" stroke-width="1.5"/>
+    <text x="82" y="205" font-size="15.5">Recompensa</text>
+  </g>
+  <g font-family="GP Inter, sans-serif" font-size="9.5" fill="#4E2C18" text-anchor="middle" letter-spacing="1.6">
+    <text x="200" y="196">O CICLO</text>
+    <text x="200" y="211">DO HÁBITO</text>
+  </g>
+</svg>

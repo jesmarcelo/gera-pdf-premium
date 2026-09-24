@@ -1,0 +1,134 @@
+#!/usr/bin/env bash
+# gera-pdf-premium · ponto de entrada (macOS / Linux)
+#   gerar verificar        pré-requisitos, sem depender de Python
+#   gerar <subcomando> …   repassa para gerar.py (setup, converter, analisar, redigir-diff, build, preview, ocorrencias, atualizar, limpar)
+set -uo pipefail
+
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# tudo dentro do projeto (ambiente, caches, temporários), nunca em /tmp, /var, /private ou ~/.cache
+BASE="$PWD/.gera-pdf-premium"
+VENV="${GERA_PDF_PREMIUM_VENV:-$BASE/venv}"
+
+achar_uv() {
+  command -v uv 2>/dev/null && return
+  for c in "$HOME/.local/bin/uv" "$HOME/.cargo/bin/uv"; do [ -x "$c" ] && { echo "$c"; return; }; done
+  return 1
+}
+
+achar_python() {  # imprime o primeiro python >= 3.10
+  for p in python3 python python3.13 python3.12 python3.11 python3.10; do
+    command -v "$p" >/dev/null 2>&1 || continue
+    "$p" -c 'import sys; sys.exit(0 if sys.version_info >= (3, 10) else 1)' 2>/dev/null && { command -v "$p"; return; }
+  done
+  return 1
+}
+
+sistema() {
+  case "$(uname -s)" in
+    Darwin) echo macos ;;
+    Linux)  if command -v apt-get >/dev/null 2>&1; then echo linux-apt
+            elif command -v dnf >/dev/null 2>&1; then echo linux-dnf
+            elif command -v pacman >/dev/null 2>&1; then echo linux-pacman
+            else echo linux; fi ;;
+    *) echo outro ;;
+  esac
+}
+
+tem_pango() {
+  if [ -x "$VENV/bin/python" ] && "$VENV/bin/python" -c "import weasyprint" >/dev/null 2>&1; then return 0; fi
+  case "$(uname -s)" in
+    Darwin)
+      for d in /opt/homebrew/lib /usr/local/lib /opt/local/lib; do
+        ls "$d"/libpango-1.0*.dylib >/dev/null 2>&1 && return 0
+      done ;;
+    Linux)
+      ldconfig -p 2>/dev/null | grep -q 'libpango-1.0.so' && return 0
+      ls /usr/lib*/libpango-1.0.so* /usr/lib*/*/libpango-1.0.so* >/dev/null 2>&1 && return 0 ;;
+  esac
+  return 1
+}
+
+verificar() {
+  local so falta=0
+  so="$(sistema)"
+  echo "SISTEMA $so"
+
+  if uv="$(achar_uv)"; then
+    echo "OK uv $("$uv" --version 2>/dev/null | awk '{print $2}')"
+  else
+    echo "FALTA uv | instalar: curl -LsSf https://astral.sh/uv/install.sh | sh"
+  fi
+
+  if py="$(achar_python)"; then
+    echo "OK python $("$py" -c 'import platform; print(platform.python_version())')"
+  elif [ -n "${uv:-}" ]; then
+    echo "OK python (será baixado pelo uv: uv python install 3.12)"
+  else
+    falta=1
+    case "$so" in
+      macos)      d="brew install python   (ou instale o uv, que traz o Python)";;
+      linux-apt)  d="sudo apt install python3 python3-venv";;
+      linux-dnf)  d="sudo dnf install python3";;
+      linux-pacman) d="sudo pacman -S python";;
+      *)          d="https://www.python.org/downloads/";;
+    esac
+    echo "FALTA python | instalar: $d"
+  fi
+
+  if tem_pango; then
+    echo "OK pango"
+  else
+    falta=1
+    case "$so" in
+      macos)      d="brew install pango";;
+      linux-apt)  d="sudo apt install libpango-1.0-0 libpangoft2-1.0-0";;
+      linux-dnf)  d="sudo dnf install pango";;
+      linux-pacman) d="sudo pacman -S pango";;
+      *)          d="veja README.md";;
+    esac
+    echo "FALTA pango | instalar: $d"
+  fi
+
+  if command -v tesseract >/dev/null 2>&1; then
+    if tesseract --list-langs 2>/dev/null | grep -qx por; then
+      echo "OK tesseract (com português)"
+    else
+      case "$so" in
+        macos) d="brew install tesseract-lang";; linux-apt) d="sudo apt install tesseract-ocr-por";;
+        linux-dnf) d="sudo dnf install tesseract-langpack-por";; *) d="pacote de idioma 'por' do tesseract";;
+      esac
+      echo "OPCIONAL tesseract sem português | instalar: $d   (só para PDF escaneado)"
+    fi
+  else
+    case "$so" in
+      macos) d="brew install tesseract tesseract-lang";; linux-apt) d="sudo apt install tesseract-ocr tesseract-ocr-por";;
+      linux-dnf) d="sudo dnf install tesseract tesseract-langpack-por";; linux-pacman) d="sudo pacman -S tesseract tesseract-data-por";;
+      *) d="https://tesseract-ocr.github.io/tessdoc/Installation.html";;
+    esac
+    echo "OPCIONAL tesseract | instalar: $d   (só para PDF escaneado)"
+  fi
+
+  if [ -x "$VENV/bin/python" ]; then echo "OK ambiente $VENV"; else echo "PENDENTE ambiente (criado sozinho no primeiro uso: gerar setup)"; fi
+  [ $falta -eq 0 ] && echo "RESULTADO pronto" || echo "RESULTADO faltam pré-requisitos"
+  return $falta
+}
+
+if [ "${1:-}" = "verificar" ]; then
+  verificar
+  exit $?
+fi
+
+# gerar.py troca o temporário por uma subpasta por execução e apaga tudo ao terminar
+TMPDIR="$BASE/tmp/boot"
+mkdir -p "$TMPDIR" && export TMPDIR TEMP="$TMPDIR" TMP="$TMPDIR" \
+  UV_CACHE_DIR="$BASE/cache/uv" PIP_CACHE_DIR="$BASE/cache/pip" UV_PYTHON_INSTALL_DIR="$BASE/python"
+
+if [ -x "$VENV/bin/python" ]; then
+  exec "$VENV/bin/python" "$DIR/gerar.py" "$@"
+elif uv="$(achar_uv)"; then
+  exec "$uv" run --quiet --no-project --python 3.12 "$DIR/gerar.py" "$@"
+elif py="$(achar_python)"; then
+  exec "$py" "$DIR/gerar.py" "$@"
+fi
+echo "ERRO: não encontrei Python 3.10+ nem o uv. Rode: $DIR/gerar verificar" >&2
+exit 5
